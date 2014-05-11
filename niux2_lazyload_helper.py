@@ -8,7 +8,8 @@ To all the img tags in the html document, this plugin do these things:
 * move attribute `src` to attribute `data-original`.
 * add attributes:
     1. data-height: real height of the image file, in px.
-    2. width and data-width: real width of the image file, in px.
+    2. width: real width of the image file, in px.
+    3. data-width: real width of the image file, in px.
 
 Requirements
 
