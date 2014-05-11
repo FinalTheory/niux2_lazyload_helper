@@ -4,16 +4,17 @@ This pelican plugin is inspired by the plugin [better figures and images](https:
 
 To all the img tags in the html document, this plugin do these things:
 
-* add class `lazy`.
-* move attribute `src` to attribute `data-original`.
-* add attributes:
-    1. data-height: real height of the image file, in px.
-    2. width: real width of the image file, in px.
-    3. data-width: real width of the image file, in px.
+    * add attributes:
+        * width: real width of the image file, in px.
+    * if `NIUX2_LAZY_LOAD` is set as True in your pelican configuration:
+        * add the following attributes:
+            * data-height: real height of the image file, in px.
+            * data-width: real width of the image file, in px.
+        * add class `lazy`.
+        * move attribute `src` to attribute `data-original`.
 
-Requirements
-
-* pip install pillow beautifulsoup4
+Requirements:
+pip install pillow beautifulsoup4
 """
 
 from os import path, access, R_OK
@@ -47,9 +48,6 @@ def parse_images(instance):
         im = Image.open(imgSrc)
         imgWidth = im.size[0]
         imgHeight = im.size[1]
-
-        if img.get('alt') and img['alt'] == img['src']:
-            img['alt'] = ''
 
         if not img.get('width'):
             img['width'] = str(imgWidth) + 'px'
