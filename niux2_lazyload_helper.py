@@ -22,8 +22,10 @@ from pelican import signals
 from bs4 import BeautifulSoup
 from PIL import Image
 import logging
+import re
 
 logger = logging.getLogger(__name__)
+_width_attr_reg = re.compile(r'[a-z]*$')
 
 def parse_images(instance):
     if instance._content is None or not 'img' in instance._content:
@@ -48,9 +50,12 @@ def parse_images(instance):
         im = Image.open(imgSrc)
         imgWidth = im.size[0]
         imgHeight = im.size[1]
+        imgResized = False
 
         if not img.get('width'):
             img['width'] = str(imgWidth) + 'px'
+        else:
+            imgResized = True
 
         # for lazyload.js
         if 'NIUX2_LAZY_LOAD' in instance.settings and instance.settings['NIUX2_LAZY_LOAD']:
@@ -60,8 +65,14 @@ def parse_images(instance):
                 img['class'] = 'lazy'
             img['data-original'] = img['src']
             del img['src']
-            img['data-width'] = str(imgWidth) + 'px'
-            img['data-height'] = str(imgHeight) + 'px'
+            if imgResized:
+                newImgWidth = int(_width_attr_reg.sub('', img['width']).strip())
+                newImgHeight = imgHeight * newImgWidth / imgWidth
+                img['data-width'] = str(newImgWidth) + 'px'
+                img['data-height'] = str(newImgHeight) + 'px'
+            else:
+                img['data-width'] = str(imgWidth) + 'px'
+                img['data-height'] = str(imgHeight) + 'px'
 
     instance._content = soup.decode()
 
