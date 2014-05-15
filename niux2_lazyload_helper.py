@@ -58,7 +58,7 @@ def parse_images(instance):
             imgResized = True
 
         # for lazyload.js
-        if 'NIUX2_LAZY_LOAD' in instance.settings and instance.settings['NIUX2_LAZY_LOAD']:
+        if instance.settings.get('NIUX2_LAZY_LOAD', False):
             if img.get('class'):
                 img['class'] += 'lazy'
             else:
