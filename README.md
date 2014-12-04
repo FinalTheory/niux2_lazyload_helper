@@ -13,7 +13,7 @@ To all the img tags in the html document, this plugin do these things:
     * add class `lazy`.
     * move attribute `src` to attribute `data-original`.
 
-**NOTE THAT**, you have to wirte your a function called `MY_IMG_URL2PATH_FUNC`, which can convert value of the image src attribute to the image's absolute path. e.g.
+**NOTE THAT**, you have to wirte a function called `MY_IMG_URL2PATH_FUNC`, which can convert the value of image src attribute to the image's absolute path. e.g.
 
     import os
     def my_img_url_2_path(url):
