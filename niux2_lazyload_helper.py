@@ -35,19 +35,21 @@ def parse_images(instance):
     soup = BeautifulSoup(content)
 
     for img in soup('img'):
-        imgPath, imgFilename = path.split(img['src'])
-
-        if not imgPath.startswith('/static'):
-            logger.debug('imgPath %s not started with /static', imgPath)
-            continue
         # Build the source image filename
-        imgSrc = instance.settings['PATH'] + imgPath + '/' + imgFilename
-        if not (path.isfile(imgSrc) and access(imgSrc, R_OK)):
-            logger.error('Error: image not found: {}'.format(imgSrc))
+        my_url2path_func = instance.settings['MY_IMG_URL2PATH_FUNC']
+        if not my_url2path_func:
+            logger.error('Error: MY_IMG_URL2PATH_FUNC not defined in your pelican configuration.\n\
+                    niux2_lazyload_helper cannot determine the image path from its url.\n')
+            return
+        imgPath = my_url2path_func(img['src'])
+        if not imgPath:
+            return
+        if not (path.isfile(imgPath) and access(imgPath, R_OK)):
+            logger.error('Error: image file not found: {}'.format(imgPath))
             continue
 
         # Open the source image and query dimensions
-        im = Image.open(imgSrc)
+        im = Image.open(imgPath)
         imgWidth = im.size[0]
         imgHeight = im.size[1]
         imgResized = False
