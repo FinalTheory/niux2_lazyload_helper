@@ -17,6 +17,8 @@ Requirements:
 pip install pillow beautifulsoup4
 """
 
+from tempfile import TemporaryFile
+from urllib2 import urlopen
 from os import path, access, R_OK
 from pelican import signals
 from bs4 import BeautifulSoup
@@ -28,7 +30,7 @@ logger = logging.getLogger(__name__)
 _width_attr_reg = re.compile(r'[a-z]*$')
 
 def parse_images(instance):
-    if instance._content is None or not 'img' in instance._content:
+    if instance._content is None or 'img' not in instance._content:
         return
 
     content = instance._content[:]
@@ -41,15 +43,23 @@ def parse_images(instance):
             logger.error('Error: MY_IMG_URL2PATH_FUNC not defined in your pelican configuration.\n\
                     niux2_lazyload_helper cannot determine the image path from its url.\n')
             return
-        imgPath = my_url2path_func(img['src'])
-        if not imgPath:
-            return
-        if not (path.isfile(imgPath) and access(imgPath, R_OK)):
+        imgPath, new_src = my_url2path_func(img['src'])
+
+        if not new_src.startswith('http') and not (path.isfile(imgPath) and access(imgPath, R_OK)):
             logger.error('Error: image file not found: {}'.format(imgPath))
             continue
 
+        img['src'] = new_src
         # Open the source image and query dimensions
-        im = Image.open(imgPath)
+        if new_src.startswith('http'):
+            img_data = urlopen(new_src).read()
+            fid = TemporaryFile('wb+')
+            fid.write(img_data)
+            fid.flush()
+            fid.seek(0)
+        else:
+            fid = open(imgPath, 'rb')
+        im = Image.open(fid)
         imgWidth = im.size[0]
         imgHeight = im.size[1]
         imgResized = False
