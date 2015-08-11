@@ -32,7 +32,7 @@ def parse_images(instance):
         return
 
     content = instance._content[:]
-    soup = BeautifulSoup(content)
+    soup = BeautifulSoup(content, "html.parser")
 
     for img in soup('img'):
         # Build the source image filename
